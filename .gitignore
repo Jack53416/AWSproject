@@ -1,0 +1,7 @@
+#Node packages
+/WebPage/node_modules/
+/Worker/node_modules/
+
+#AWS files
+/WebPage/config/aws-config.json
+
