@@ -1,0 +1,135 @@
+.img-small {
+    width: 100px;
+    height: 100px;
+}
+
+.img-container {
+    display: inline-block;
+    width: 120px;
+    height: 120px;
+    margin: 5px 10px 5px 5px;
+}
+
+.img-medium {
+    width: 200px;
+    height: 200px;
+}
+
+
+div.content{
+	margin-top:	55px;
+}
+button.leftAl{
+	text-align:left;
+}
+.panel:hover {
+box-shadow: 5px 0px 40px rgba(0,0,0, .5);
+}
+.panel-footer .btn:hover {
+    border: 1px solid #f4511e;
+    background-color: #fff !important;
+    color: #f4511e;
+}
+
+.panel-heading {
+    color: #fff !important;
+    background-color: #f4511e !important;
+    padding: 5px;
+    border-bottom: 1px solid transparent;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.panel-footer {
+    background-color: #fff !important;
+}
+.panel {
+    border: 1px solid #f4511e;
+    border-radius:0;
+    transition: box-shadow 0.5s;
+}
+body {
+	background-color:#ffffff;
+	font-family:arial,sans-serif;
+}
+#marg{
+	margin-top:10px;
+}
+#blackLink{
+	color:#000000;
+}
+th,td{
+	text-align:center;
+}
+th{
+	background-color:#5e5755;
+	color:white;
+	text-align:center;
+}
+table{
+	margin-top:10px;
+	padding:5px;
+}
+div.sensor{
+	border-bottom-style:groove;
+	border-width:2px;
+	border-radius:20px;
+	margin-bottom:10px;
+}
+div.sensor:hover{
+	box-shadow: 5px 0px 40px rgba(0,0,0, .5);
+}
+img{
+	padding:15px;
+}
+
+input[type=text].sensors 
+{
+	border-style:none;
+	background-color:rgba(255, 255, 255, 0);
+	text-align:center;
+	box-shadow:none;
+	width:100%;
+	padding:0px;
+}
+
+#headingMain{
+	background-color:#5e5755;
+	color:white;
+	text-align:center;
+}
+.panelTable{
+	background-color:#ffffff;
+	color:black;
+	border:none;
+	padding:5px;
+	margin-bottom:0px;
+}
+
+/*
+ * To see in action, go to http://jsfiddle.net/seydoggy/9jv5e8d1/
+ */
+.panel-horizontal {
+    display:table;
+    width:100%;
+}
+.panel-horizontal > .panel-heading, .panel.panel-horizontal > .panel-body, .panel.panel-horizontal > .panel-footer {
+    display:table-cell;
+}
+.panel-horizontal > .panel-heading, .panel.panel-horizontal > .panel-footer {
+    width: 25%;
+    border:0;
+    vertical-align: middle;
+}
+.panel-horizontal > .panel-heading {
+    border-right: 1px solid #ddd;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 4px;
+}
+.panel-horizontal > .panel-footer {
+    border-left: 1px solid #ddd;
+    border-top-left-radius: 0;
+    border-bottom-right-radius: 4px;
+}	

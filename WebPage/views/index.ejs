@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang ="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width = device-width, initial-	scale = 1">
+	<link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="webStyle.css">
+	<link href="style.css" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<title>Dashboard</title>
+	<script>
+		$(document).ready(function () {
+			$(function(){
+            $("#nav").load("nav.html");
+			});
+
+		});
+		function checkFile()
+		{
+			if(document.getElementById("pictureFileUpload").files.length == 0)
+				return false;
+			return true;
+		}
+    </script>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top" id="nav"></nav>
+	
+<div class="container-fluid content" style="background-color: #ffffff;">
+	<div class="row">
+		<div class="col-md-2 container-fluid" style="background-color:#ffffff; role="navigation" id = "sidebar">
+			<div class="panel panel-default">
+				<div class="panel-heading" id="headingMain">
+					<h2>Upload file</h2>
+				</div>
+				<div class="panel-body"  > 
+					<form action="https://<%=bucket%>.s3.amazonaws.com/" method="POST" id="sign-up-form"
+						 enctype="multipart/form-data" target="_blank" onsubmit="return checkFile()">
+						<% fields.forEach(function(elem){ %>
+							<input type="hidden" name="<%= elem.name  %>" value="<%=elem.value %>"/>
+						<%}); %>
+						<div class="form-group input-group-lg">
+						<label for="email">File:</label>
+						<input type="file" id="pictureFileUpload" name="file" accept="image/*">
+						</div>
+						<input type="submit" value="Submit" class="btn btn-default btn-block btn btn-success" name="submit_btn" value="Send">
+					</form>
+				</div>
+			</div>
+		</div> 		
+		<div class = "col-md-10 main tab-content" style="background-color:#e3f4de;">
+			<div id="home" class="tab-pane fade in active">		
+				<h1 class="page-header"><strong>Uploaded Files</strong></h1>
+				<div class="row">
+					<div class = "col-sm-12">
+						<div class="panel panel-default panel-horizontal text-center">
+							<div class="panel-body" style="text-align:left">
+							<!-- Body 1 panela -->
+							  <form action="/alter" method="POST">
+									<div style="margin-bottom: 20px">
+										<label>
+											Operation:
+											<select name="option" >
+												<option value="greyScale">grey scale</option>
+												<option value="invert">invert</option>
+											</select>
+										</label>
+										<input type="submit" class="btn btn-default btn btn-success" value="Send"/>
+									</div>
+
+									<% images.forEach(function(image){ %>
+									<div class="img-container">
+										<a href="<%= image.link %>">
+											<img src="<%= image.link %>" class="img-small img-thumbnail">
+										</a>
+										<label >
+											<input type="checkbox" name="keys" value="<%= image.key %>">
+										</label>
+									</div>
+									<% }) %>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>		
+</div>
+<footer class="container-fluid text-center" id="headingMain" style="margin-top:20px;">
+	<span style="style=vertical-align:middle"><p>Made by Jacek Byczkiewicz with BootStrap framework</p></span>
+</footer>	
+<script src="js/bootstrap.min.js"></script>
+</body>
+</html>
