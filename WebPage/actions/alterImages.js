@@ -10,13 +10,13 @@ var sqs = new AWS.SQS();
 
 var task =  function(request, callback){
 
-    if(!request.body.keys) return notificationHelper.showError("Any images selected", callback);
+    if(!request.body.keys) return notificationHelper.showError("No images selected", callback);
 
     if(typeof request.body.keys === 'string' ) {
         request.body.keys = [request.body.keys];
     }
 
-    if(request.body.keys.length > 10)  return notificationHelper.showError("More than 10 images selected", callback);
+    if(request.body.keys.length > 10)  return notificationHelper.showError("Error, more than 10 imagas selected", callback);
 
     var entries = _.map( request.body.keys, function (key, index) {
         return {
@@ -43,9 +43,9 @@ var task =  function(request, callback){
         else {
             console.log(data);
             if(data.Failed.length === 0) {
-                return notificationHelper.showSuccess("All images send to convert", callback);
+                return notificationHelper.showSuccess("All images were queued for convertion", callback);
             } else {
-                return notificationHelper.showError("Sorry " + data.Failed.length + " msg failed", callback);
+                return notificationHelper.showError("Error " + data.Failed.length + " msg failed", callback);
             }
         }
     });
