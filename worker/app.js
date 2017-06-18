@@ -1,23 +1,22 @@
 "use strict";
 
-var jimp = require("jimp");
-var sleep = require('sleep');
 var AWS = require("aws-sdk");
+var async = require("async");
 var _ = require("lodash");
 var moment = require("moment");
 var del = require("delete");
-var async = require("async");
 var fs = require("fs");
 var path  = require("path");
+var jimp = require("jimp");
 
-AWS.config.loadFromPath('aws-config.json');
+AWS.config.loadFromPath('../WebPage/config/aws-config.json');
 
 var sqs = new AWS.SQS();
 var s3 = new AWS.S3();
 
 var queueUrl = "https://sqs.us-west-2.amazonaws.com/440412059271/awsPsoirQueue";
 var bucketName = "awspsoir";
-var viableOptions = ["greyScale", "invert"];
+var viableOptions = ["greyScale", "invert", "sepia", "blur"];
 
 // Comment to not run app
 run();
@@ -30,11 +29,7 @@ function run() {
                 return receive(cb);
             },
             function (msgBody, receiptHandle, cb) {
-                // save in var to not pass through whole waterfall
                 receiptHandleMsg = receiptHandle;
-                return validateMsgBody(msgBody, cb);
-            },
-            function (msgBody, cb) {
                 return convertImage(msgBody, cb);
             },
             function (convertedFileName, cb) {
@@ -52,8 +47,6 @@ function run() {
             } else {
                 console.log("Whole job successfully done");
             }
-            // Debug: Wait 30s to next polling msg
-            // sleep.msleep(30000);
             return run();
         }
     );
@@ -62,8 +55,6 @@ function run() {
 function receive(cb) {
 
     console.log("Start polling");
-
-    // Long polling (20s) set for whole queue - not for every msg
     var params = {
         QueueUrl: queueUrl,
         MaxNumberOfMessages: 1
@@ -75,27 +66,25 @@ function receive(cb) {
         }
         else {
             if(!data.hasOwnProperty("Messages")) {
-                return cb("any msg to poll");
+                return cb("No messages on the queue");
             }
 
-            console.log("Msg received");
-            var msgBody = JSON.parse(data.Messages[0].Body);
+            console.log("Received message");
+            var messsageBody = JSON.parse(data.Messages[0].Body);
             var receiptHandle = data.Messages[0].ReceiptHandle;
-            return cb(null, msgBody, receiptHandle);
+			
+			if(!messsageBody.hasOwnProperty("key") || !messsageBody.hasOwnProperty("option")) {
+				return cb("Invalid message");
+			}
+
+			if(!_.includes(viableOptions, messsageBody.option)) {
+				return cb("Wrong option");
+			}
+            return cb(null, messsageBody, receiptHandle);
         }
     });
 }
 
-function validateMsgBody(msgBody, cb) {
-    if(!msgBody.hasOwnProperty("option") || !msgBody.hasOwnProperty("key")) {
-        return cb("invalid msg body");
-    }
-
-    if(!_.includes(viableOptions, msgBody.option)) {
-        return cb("invalid option");
-    }
-    return cb(null, msgBody);
-}
 
 function convertImage(msgBody, cb) {
     var imageLink = constructLink(msgBody.key);
@@ -115,6 +104,12 @@ function convertImage(msgBody, cb) {
             case "invert":
                 image.invert();
                 break;
+			case "sepia":
+				image.sepia();
+				break;
+			case "blur":
+				image.blur(50);
+				break;
             default:
                 console.log("Case " + msgBody.operation + " doesn't exist");
         }
