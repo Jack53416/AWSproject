@@ -1,21 +1,3 @@
-.img-small {
-    width: 100px;
-    height: 100px;
-}
-
-.img-container {
-    display: inline-block;
-    width: 120px;
-    height: 120px;
-    margin: 5px 10px 5px 5px;
-}
-
-.img-medium {
-    width: 200px;
-    height: 200px;
-}
-
-
 div.content{
 	margin-top:	55px;
 }
@@ -108,9 +90,6 @@ input[type=text].sensors
 	margin-bottom:0px;
 }
 
-/*
- * To see in action, go to http://jsfiddle.net/seydoggy/9jv5e8d1/
- */
 .panel-horizontal {
     display:table;
     width:100%;
@@ -132,4 +111,20 @@ input[type=text].sensors
     border-left: 1px solid #ddd;
     border-top-left-radius: 0;
     border-bottom-right-radius: 4px;
-}	
+}
+.img-small {
+    width: 100px;
+    height: 100px;
+}
+
+.img-container {
+    display: inline-block;
+    width: 120px;
+    height: 120px;
+    margin: 5px 10px 5px 5px;
+}
+
+.img-medium {
+    width: 200px;
+    height: 200px;
+}

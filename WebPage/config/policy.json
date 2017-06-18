@@ -2,7 +2,7 @@
 	"conditions": [ ["starts-with", "$key", "uploadedImages/"],
     				 {"bucket": "awspsoir"},
     				 {"acl": "public-read"},
-    				 {"success_action_redirect": "https://s3-us-west-2.amazonaws.com/aws-lab-project1/uploadSuccessful.html"},
+    				 {"success_action_redirect": "https://s3-us-west-2.amazonaws.com/awspsoir/Success.html"},
 					 {"x-amz-meta-Author": "Jacek Byczkiewicz"},
     				 ["content-length-range", 0, 1048576]
     				]
