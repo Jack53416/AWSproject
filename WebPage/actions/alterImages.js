@@ -4,7 +4,6 @@ var AWS = require("aws-sdk");
 var _ = require("lodash");
 var async = require("async");
 
-var notificationHelper = require("../notificationHelper");
 
 AWS.config.loadFromPath('config/aws-config.json');
 var sqs = new AWS.SQS();

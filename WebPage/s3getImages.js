@@ -3,7 +3,6 @@ var _ = require("lodash");
 
 var Policy = require("./s3post").Policy;
 var helpers = require("./helpers");
-var notificationHelper = require("./notificationHelper");
 
 var policyData = helpers.readJSONFile("config/policy.json");
 
@@ -24,7 +23,7 @@ exports.getImages = function(prefix, callback){
     s3.listObjects(params, function(err, data) {
         if (err) {
             console.log(err, err.stack);
-            return notificationHelper.showError(err, callback);
+            return callback(null, {template: "notification.ejs", params: {state: "err", err: err}});
         }
         else {
             var imagesKeys = _.map(data.Contents, 'Key');
