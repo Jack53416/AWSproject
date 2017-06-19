@@ -17,13 +17,13 @@
 
 <div class="container-fluid content" style="background-color:#e3f4de;">
 
-    <% if(suc)  { %>
+    <% if(state == "sucess")  { %>
     <div class="alert alert-success">
-        <strong>Success!</strong> <%= suc %>
+        <strong>Success!</strong> Images were queued for convertion !
     </div>
     <% } %>
 
-    <% if(err)  { %>
+    <% if(state == "err")  { %>
         <div class="alert alert-danger">
             <strong>Error!</strong> <%= err %>
         </div>

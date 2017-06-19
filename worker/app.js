@@ -4,7 +4,7 @@ var AWS = require("aws-sdk");
 var async = require("async");
 var _ = require("lodash");
 var moment = require("moment");
-var del = require("delete");
+var remove = require("delete");
 var fs = require("fs");
 var path  = require("path");
 var jimp = require("jimp");
@@ -16,50 +16,47 @@ var s3 = new AWS.S3();
 
 var queueUrl = "https://sqs.us-west-2.amazonaws.com/440412059271/awsPsoirQueue";
 var bucketName = "awspsoir";
-var viableOptions = ["greyScale", "invert", "sepia", "blur"];
+var avalaibleConvertions = ["greyScale", "invert", "sepia", "blur"];
 
-// Comment to not run app
-run();
+work(); // initial iteration
 
-function run() {
+function work() {
     var receiptHandleMsg;
 
     async.waterfall([
             function (cb) {
-                return receive(cb);
+                return receiveQueueMsg(cb);
             },
             function (msgBody, receiptHandle, cb) {
                 receiptHandleMsg = receiptHandle;
                 return convertImage(msgBody, cb);
             },
             function (convertedFileName, cb) {
-                return saveConvertedImageInBucket(convertedFileName, cb);
-            },
-            function (convertedFileName, cb) {
-                return deleteLocalConvertedFile(convertedFileName, cb);
+                return saveImageInBucket(convertedFileName, cb);
             },
             function (cb) {
-                return deleteMsgFromQueue(receiptHandleMsg, cb);
+                return deleteQueueMsg(receiptHandleMsg, cb);
             }
-        ], function (err, result) {
-            if(err) {
+        ], function (err, result) { //default error
+		    if(err) 
+			{
                 console.log("ERROR: " + err);
-            } else {
-                console.log("Whole job successfully done");
+            } 
+			else
+			{
+                console.log("Coversion successfully done");
             }
-            return run();
+            return work();
         }
     );
 }
 
-function receive(cb) {
-
-    console.log("Start polling");
+function receiveQueueMsg(cb) {
     var params = {
         QueueUrl: queueUrl,
         MaxNumberOfMessages: 1
     };
-    sqs.receiveMessage(params, function(err, data) {
+    sqs.receiveMessage(params, function(err, data) { /*Receive Message from queue*/
         if (err) {
             console.log(err, err.stack);
             return cb(err);
@@ -72,12 +69,12 @@ function receive(cb) {
             console.log("Received message");
             var messsageBody = JSON.parse(data.Messages[0].Body);
             var receiptHandle = data.Messages[0].ReceiptHandle;
-			
+			/*Check if received message is correct*/
 			if(!messsageBody.hasOwnProperty("key") || !messsageBody.hasOwnProperty("option")) {
 				return cb("Invalid message");
 			}
 
-			if(!_.includes(viableOptions, messsageBody.option)) {
+			if(!_.includes(avalaibleConvertions, messsageBody.option)) {
 				return cb("Wrong option");
 			}
             return cb(null, messsageBody, receiptHandle);
@@ -87,7 +84,7 @@ function receive(cb) {
 
 
 function convertImage(msgBody, cb) {
-    var imageLink = constructLink(msgBody.key);
+    var imageLink = encodeURI("https://s3-us-west-2.amazonaws.com/" + bucketName + "/" + msgBody.key);
 
     jimp.read(imageLink, function (err, image) {
         if (err) {
@@ -115,15 +112,15 @@ function convertImage(msgBody, cb) {
         }
         console.log("File converted");
 
-        image.write(convertedFileName, function () {
+        image.write(convertedFileName, function () { //Save temp file locally
             console.log("File Saved");
             return cb(null, convertedFileName);
         });
 
-    })
+    });
 }
 
-function saveConvertedImageInBucket(convertedFileName, cb) {
+function saveImageInBucket(convertedFileName, cb) {
 
     var fileStream = fs.createReadStream(path.join( __dirname, convertedFileName));
 
@@ -135,7 +132,10 @@ function saveConvertedImageInBucket(convertedFileName, cb) {
     };
 
     fileStream.on('error', function (err) {
-        if (err) { return cb(err); }
+        if (err) 
+		{
+			return cb(err); 
+		}
     });
     fileStream.on('open', function () {
         s3.putObject(params, function(err, data) {
@@ -145,26 +145,21 @@ function saveConvertedImageInBucket(convertedFileName, cb) {
             }
             else {
                 console.log("Image saved in bucket");
-                return cb(null, convertedFileName);
+				/*Image saved in bucket, local file removal started*/
+				remove([convertedFileName], function(err,removed){
+					if(err)
+					{
+						console.log("Failed to remove local file");
+						return cb(err);
+					}
+					return cb();
+				});
             }
         });
     });
 }
 
-function deleteLocalConvertedFile(convertedFileName, cb) {
-    del([convertedFileName], function(err, deleted) {
-        if (err) {
-            return cb(err);
-        }
-        console.log("File deleted: " + deleted);
-        return cb();
-    });
-}
-
-function deleteMsgFromQueue(receiptHandleMsg, cb) {
-
-    //TODO delete (debug only)
-    // return cb(null, "Whole job successfully done");
+function deleteQueueMsg(receiptHandleMsg, cb) {
 
     var params = {
         QueueUrl: queueUrl,
@@ -182,10 +177,6 @@ function deleteMsgFromQueue(receiptHandleMsg, cb) {
     });
 }
 
-// util function
-function constructLink(key) {
-    return  encodeURI("https://s3-us-west-2.amazonaws.com/" + bucketName + "/" + key);
-}
 
 
 

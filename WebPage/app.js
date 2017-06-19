@@ -17,7 +17,7 @@ actionsCofig.forEach(function(elem){
 	}
 });
 
-var service = require("./httpService").http(actionsCofig);
+var service = require("./service").http(actionsCofig);
 
 service(PORT);
 

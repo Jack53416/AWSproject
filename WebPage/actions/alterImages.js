@@ -1,7 +1,8 @@
-"use strict";
+"use strict"; 
 
 var AWS = require("aws-sdk");
 var _ = require("lodash");
+var async = require("async");
 
 var notificationHelper = require("../notificationHelper");
 
@@ -10,15 +11,25 @@ var sqs = new AWS.SQS();
 
 var task =  function(request, callback){
 
-    if(!request.body.keys) return notificationHelper.showError("No images selected", callback);
+    if(!request.body.keys) 
+		return callback(null, {template: "notification.ejs", params: {state:err, "err": 'No images selected'}});
 
-    if(typeof request.body.keys === 'string' ) {
-        request.body.keys = [request.body.keys];
-    }
+    var reqArr = request.body.keys.toString().split(',');
+	if(reqArr.length > 10) 
+		return callback(null, {template: "notification.ejs", params: {state: "err", err: 'Cannot send more than 10 images at once'}});
 
-    if(request.body.keys.length > 10)  return notificationHelper.showError("Error, more than 10 imagas selected", callback);
-
-    var entries = _.map( request.body.keys, function (key, index) {
+/*	var index =0;
+	var entries = [{
+            Id: index.toString(),
+            MessageBody: JSON.stringify(
+                {
+                    option: request.body.option,
+                    key: reqArr
+                }
+            )
+        }];
+		*/
+    var entries = _.map(reqArr, function (key, index) {
         return {
             Id: index.toString(),
             MessageBody: JSON.stringify(
@@ -29,23 +40,27 @@ var task =  function(request, callback){
             )
         }
     });
+	
 
     var params = {
         QueueUrl: 'https://sqs.us-west-2.amazonaws.com/440412059271/awsPsoirQueue',
         Entries: entries
     };
-
+	console.log("Entries length: " + entries.length);
     sqs.sendMessageBatch(params, function(err, data) {
         if (err) {
             console.log(err, err.stack);
-            return notificationHelper.showError(err, callback);
+            return callback(null, {template: "notification.ejs", params: {state: "err", err: err}});
         }
         else {
             console.log(data);
-            if(data.Failed.length === 0) {
-                return notificationHelper.showSuccess("All images were queued for convertion", callback);
-            } else {
-                return notificationHelper.showError("Error " + data.Failed.length + " msg failed", callback);
+            if(data.Failed.length === 0)
+			{
+                return callback(null, {template: "notification.ejs", params: {state: "sucess", err: null}});
+            } 
+			else 
+			{
+                return callback(null, {template: "notification.ejs", params: {state: "err", err: "Message Failed"}});
             }
         }
     });
