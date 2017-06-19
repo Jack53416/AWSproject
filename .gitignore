@@ -4,4 +4,5 @@
 
 #AWS files
 /WebPage/config/aws-config.json
-
+/WebPage/bashWebPage.sh
+/Worker/bashWorker.sh
